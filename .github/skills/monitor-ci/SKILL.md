@@ -19,6 +19,16 @@ $ARGUMENTS
 
 **Important:** If user provides specific instructions, respect them over default behaviors described below.
 
+## Hexagonal + DDD Guardrails For Local Fixes
+
+If this workflow performs code changes while fixing CI failures:
+
+- Keep business rules in `domain`; keep framework and I/O logic in adapters.
+- Define or reuse ports in `application`; implement integrations in `infrastructure-*`.
+- Keep controllers/UI layers calling application use cases, not infrastructure services directly.
+- Add boundary mappers when fixing DTO/entity/domain mismatches; do not leak persistence or transport types into `domain`.
+- Keep facade/composition-root wiring explicit when new adapters are introduced.
+
 ## Configuration Defaults
 
 | Setting                   | Default       | Description                                                               |

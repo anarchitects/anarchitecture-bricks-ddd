@@ -2,8 +2,6 @@
 
 Modular, reusable libraries and showcase applications for scalable software architectures, with a Domain-Driven Design first repository structure.
 
-This file is intentionally isolated under `docs/ddd/` so it can be copied into a DDD-oriented repository without changing this 3-tier repo.
-
 ## Purpose
 
 - Publishable domain libraries in `libs/` organised by bounded context and layer.
@@ -33,6 +31,32 @@ The domain layer is pure TypeScript:
 - no HTTP DTO concerns
 - no environment access
 - no transport framework assumptions
+
+## Hexagonal Architecture Position
+
+This repository follows hexagonal architecture inside each bounded context, with DDD as the modeling strategy.
+
+- **Core (inside the hexagon):** `domain` + `application`
+- **Ports (owned by application):** inbound and outbound interfaces in `application`
+- **Adapters (outside the hexagon):** `infrastructure-*` and `presentation`/frontend adapters
+- **Composition roots:** wire ports to adapters in facades, module bootstrap, or app startup boundaries
+
+### Non-negotiable dependency direction
+
+- `domain` depends on no framework/runtime infrastructure concerns
+- `application` depends on `domain` and declares ports
+- `infrastructure-*` implements application ports
+- `presentation` invokes application use cases via inbound ports
+- adapter-to-adapter coupling is forbidden unless done via application contracts
+
+### Implementation checklist (every change)
+
+1. Put business rules, invariants, policies, and aggregate behavior in `domain`.
+2. Put orchestration and ports in `application`.
+3. Put external I/O in adapters (`infrastructure-*`, `presentation`, frontend data-access).
+4. Map contracts/DTOs at boundaries; do not leak transport or persistence shapes into `domain`.
+5. Wire dependencies only in composition roots and facades.
+6. Keep third-party SDKs behind adapter implementations.
 
 ## Source of Truth
 
@@ -120,6 +144,7 @@ tools/
 - Angular: `ui <- feature -> state -> data-access`
 - Domain: pure TS only
 - Contracts: framework-agnostic transport/public schemas only
+- Hexagonal core: `domain <- application`; adapters point inward through ports
 
 ### Forbidden shortcuts
 
@@ -128,6 +153,7 @@ tools/
 - Angular `feature` must not import `data-access` directly
 - DTO/transport packages must not become the domain model
 - TypeORM entities must not become domain entities
+- adapters must not call other adapters directly to bypass application orchestration
 
 ## Domain vs Contracts
 
@@ -265,6 +291,10 @@ This DDD-first structure is the default because it gives the repository:
 - clearer ownership by bounded context and layer
 - clean separation between domain model and transport model
 - infrastructure replaceability without pretending every engine is first-class
+
+## Architecture Decision Records
+
+- [ADR-0001: Hexagonal Architecture With DDD Boundaries](docs/adr/0001-hexagonal-architecture-with-ddd-boundaries.md)
 
 ## Documentation Tooling
 

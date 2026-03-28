@@ -7,6 +7,17 @@ description: "Explore and understand Nx workspaces. USE WHEN answering questions
 
 This skill provides read-only exploration of Nx workspaces. Use it to understand workspace structure, project configuration, available targets, and dependencies.
 
+## Hexagonal + DDD Checks
+
+When exploring project structure and dependencies, explicitly validate:
+
+- bounded context first, layer split second
+- `domain` as pure TS core with no framework leakage
+- ports defined in `application`
+- adapters implemented in `infrastructure-*` and presentation/frontend layers
+- dependency direction points inward (`presentation/infrastructure -> application -> domain`)
+- composition-root/facade projects are where adapter wiring occurs
+
 Keep in mind that you might have to prefix commands with `npx`/`pnpx`/`yarn` if nx isn't installed globally. Check the lockfile to determine the package manager in use.
 
 ## Listing Projects
