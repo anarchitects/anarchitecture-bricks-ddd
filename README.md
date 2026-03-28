@@ -1,96 +1,288 @@
-# AnarchitectureBricksDdd
+# Anarchitecture Bricks - DDD
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+Modular, reusable libraries and showcase applications for scalable software architectures, with a Domain-Driven Design first repository structure.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+This file is intentionally isolated under `docs/ddd/` so it can be copied into a DDD-oriented repository without changing this 3-tier repo.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## Purpose
 
-## Run tasks
+- Publishable domain libraries in `libs/` organised by bounded context and layer.
+- A pure TypeScript domain layer at the center of each bounded context.
+- Explicit application, infrastructure, and presentation/frontend adapter layers around the domain model.
+- Public facade packages for easy consumption, with deeper layer packages available for advanced composition.
+- OpenAPI docs generated from Nest presentation implementation metadata (`@RouteSchema`).
+- Shared transport and public-contract packages separated from domain model packages.
+- Nx-managed example applications in `examples/` for integration and contract validation.
 
-To run tasks with Nx use:
+## Core DDD Position
 
-```sh
-npx nx <target> <project-name>
+This repository structure treats the domain model as the center of the architecture.
+
+For each bounded context:
+
+- `domain` contains pure business model code
+- `application` contains use cases, orchestration, and ports
+- `infrastructure` contains adapters to persistence, engines, mail, external systems
+- `presentation` or frontend adapter layers expose the product surface
+- facade packages provide an easy-mode entrypoint over those internals
+
+The domain layer is pure TypeScript:
+
+- no Angular or Nest dependencies
+- no TypeORM decorators
+- no HTTP DTO concerns
+- no environment access
+- no transport framework assumptions
+
+## Source of Truth
+
+1. Domain model and business rules: `libs/<bounded-context>/domain`.
+2. Public/shared transport contracts: `libs/<bounded-context>/contracts` or `libs/<bounded-context>/ts`.
+3. HTTP contract shape: Nest presentation controllers + pure `@RouteSchema` schema fields.
+4. OpenAPI metadata (`operationId`, `tags`) is derived in `tools/api-specs/route-metadata.ts`.
+5. Generated OpenAPI artifacts: `docs/openapi/openapi.json` and `docs/openapi/openapi.yaml`.
+
+## Repository Structure
+
+```text
+libs/
+  auth/
+    domain/
+    contracts/
+    nest/
+      application/
+      presentation/
+      infrastructure-auth-engine/
+      infrastructure-persistence/
+      infrastructure-mailer/
+      facade/
+    angular/
+      data-access/
+      state/
+      feature/
+      ui/
+      facade/
+
+  forms/
+    domain/
+    contracts/
+    nest/
+      application/
+      presentation/
+      infrastructure-persistence/
+      facade/
+    angular/
+      data-access/
+      state/
+      feature/
+      ui/
+      facade/
+
+  common/
+    angular/design/
+    angular/ui-primitives/
+    angular/ui-composition/
+    angular/ui-layouts/
+    nest/mailer/
+    ts/
+
+examples/
+  auth-angular-example/
+  auth-nest-example/
+  forms-angular-example/
+  forms-nest-example/
+
+docs/
+  openapi/
+  guides/
+
+tools/
+  api-specs/
+  angular-docs/
+  typeorm/
 ```
 
-For example:
+## Layering Rules
 
-```sh
-npx nx build myproject
+### Bounded context structure
+
+- `domain` is the center and depends on nothing outside shared language-level utilities.
+- `application -> domain`
+- `infrastructure -> application`, `domain`
+- `presentation -> application`
+- Angular `feature -> state -> data-access`
+- Angular `ui <- feature`
+- `config`, `util`, and `contracts` are shared support layers where explicitly intended
+
+### Allowed dependency direction
+
+- Nest: `presentation -> application <- infrastructure`
+- Angular: `ui <- feature -> state -> data-access`
+- Domain: pure TS only
+- Contracts: framework-agnostic transport/public schemas only
+
+### Forbidden shortcuts
+
+- infrastructure must not own application ports
+- presentation must not depend directly on infrastructure services
+- Angular `feature` must not import `data-access` directly
+- DTO/transport packages must not become the domain model
+- TypeORM entities must not become domain entities
+
+## Domain vs Contracts
+
+The repository keeps a strict distinction between domain model and public contract model.
+
+### Domain layer
+
+Use the domain layer for:
+
+- entities
+- value objects
+- aggregates
+- domain services
+- domain events
+- invariants
+- specifications
+
+Do not use the domain layer for:
+
+- HTTP DTOs
+- OpenAPI schemas
+- ORM decorators
+- Angular view models
+- Nest controller request/response types
+
+### Contracts layer
+
+Use `contracts` or `ts` packages for:
+
+- shared DTOs
+- TypeBox/Zod schemas
+- serialized response shapes
+- route-schema imports for Nest presentation
+- frontend/backend transport alignment
+
+The contracts layer is package-owned public API. The domain layer is business-owned internal model.
+
+## Public Consumption Model
+
+Provide two consumption modes at the same time.
+
+### Easy mode
+
+Expose one root facade package per domain/tech when ergonomic consumption matters:
+
+- `@anarchitects/auth-nest`
+- `@anarchitects/auth-angular`
+- `@anarchitects/forms-nest`
+- `@anarchitects/forms-angular`
+
+Facade packages compose internal DDD layers but do not erase them.
+
+### Advanced mode
+
+Expose layer-specific packages for targeted overrides:
+
+- `@anarchitects/auth-nest-application`
+- `@anarchitects/auth-nest-presentation`
+- `@anarchitects/auth-nest-infrastructure-persistence`
+- `@anarchitects/auth-angular-state`
+- `@anarchitects/auth-angular-data-access`
+
+Use advanced mode for:
+
+- replacing adapters
+- custom composition
+- host-specific infrastructure overrides
+- narrow testing/integration needs
+
+## Third-Party Library Policy
+
+The default integration rule remains:
+
+- the brick is the product
+- the third-party library is the canonical internal engine
+- ports/adapters remain the escape hatch
+
+Examples:
+
+- Better Auth as the internal auth engine
+- TypeORM as the internal persistence engine
+- Nodemailer via shared mailer modules as the internal mail engine
+
+In a DDD repo, those engines belong in infrastructure layers, not in the domain layer and not as the primary public API.
+
+## Quickstart
+
+```bash
+yarn install
+
+# OpenAPI from implementation
+nx run api-specs:generate
+nx run api-specs:lint
+nx run api-specs:verify
+
+# Angular technical docs
+nx run angular-docs:generate
+
+# Storybook
+nx run storybook-angular:storybook
+
+# Example apps
+nx run auth-nest-example:serve
+nx run auth-angular-example:serve
+nx run forms-nest-example:serve
+nx run forms-angular-example:serve
+
+# Contract checks
+nx run auth-nest-example:contract-test
+nx run auth-angular-example:contract-test
+nx run forms-nest-example:contract-test
+nx run forms-angular-example:contract-test
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+## Key Nx Targets
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+| Command                                                    | Description                                           |
+| ---------------------------------------------------------- | ----------------------------------------------------- |
+| `nx run api-specs:generate`                                | Generate OpenAPI JSON/YAML from Nest controllers      |
+| `nx run api-specs:lint`                                    | Lint generated OpenAPI                                |
+| `nx run api-specs:verify`                                  | Validate required endpoints + snapshot stability      |
+| `nx run angular-docs:generate`                             | Generate and merge Compodoc docs                      |
+| `nx run docs-hub:validate-content`                         | Enforce required docs sections for guides and READMEs |
+| `nx run docs-hub:build`                                    | Build static docs hub pages                           |
+| `nx run release-tools:validate-non-bumping-commits`        | Enforce non-bumping commit types for docs-surface PRs |
+| `nx affected -t lint test build`                           | Standard affected checks                              |
 
-## Add new projects
+## Why This Structure
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+This DDD-first structure is the default because it gives the repository:
 
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-```sh
-npx nx add @nx/react
-```
+- real architectural boundaries at the Nx project level
+- better dependency enforcement than folder conventions alone
+- smaller affected sets in CI
+- clearer ownership by bounded context and layer
+- clean separation between domain model and transport model
+- infrastructure replaceability without pretending every engine is first-class
 
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
+## Documentation Tooling
 
-```sh
-# Generate an app
-npx nx g @nx/react:app demo
+- Storybook remains the default UI documentation and interaction surface.
+- Compodoc provides Angular technical API metadata and pages.
+- OpenAPI provides HTTP contract documentation derived from implementation.
+- Docs hub static site is generated via `nx run docs-hub:build`.
+- Package `README.md` files remain first-class docs sources and should describe both easy mode and advanced mode usage.
 
-# Generate a library
-npx nx g @nx/react:lib some-lib
-```
+## Human-In-The-Loop Shortlist
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+See the contributor workflow context in `CONTRIBUTING.md`.
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- Humans review all AI-proposed code changes.
+- Humans own `git commit`, pull request creation, and pull request merge.
+- AI agents must explicitly call out potential breaking changes.
+- AI agents may suggest commit messages; humans run the final commit command.
 
-## Set up CI!
+## License
 
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
-```
-
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+MIT
