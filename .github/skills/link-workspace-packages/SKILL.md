@@ -7,6 +7,16 @@ description: 'Link workspace packages in monorepos (npm, yarn, pnpm, bun). USE W
 
 Add dependencies between packages in a monorepo. All package managers support workspaces but with different syntax.
 
+## Hexagonal + DDD Guardrails
+
+When linking workspace packages, preserve architecture boundaries:
+
+- Prefer dependencies that point inward to stable abstractions (domain/application/contracts), not across adapter implementations.
+- Do not add direct presentation -> infrastructure dependencies; route those interactions through application ports.
+- Keep domain packages free from framework adapter dependencies.
+- If a new dependency would create adapter-to-adapter coupling, add or use an application port package instead.
+- Expose facade packages for easy consumption, but keep layer-specific packages available for advanced composition.
+
 ## Detect Package Manager
 
 Check whether there's a `packageManager` field in the root-level `package.json`.

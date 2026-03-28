@@ -100,6 +100,31 @@ The default expectation is that each bounded context contains:
 14. Define cross-context database relationships only in integration-only migration schemas when needed.
 15. Keep domain events, invariants, and aggregate rules in domain, not in controllers or repositories.
 
+## Hexagonal Architecture Enforcement
+
+Apply these rules on every implementation unless the user explicitly asks for an exception:
+
+1. Keep `domain` and `application` as the inside of the hexagon.
+2. Define inbound and outbound ports in `application`.
+3. Implement outbound ports only in `infrastructure-*` adapters.
+4. Keep controllers, route handlers, UI features, and API surfaces in presentation/frontend adapters.
+5. Wire adapters to application ports only in composition roots (facade/bootstrap/module setup).
+6. Forbid adapter-to-adapter shortcuts that bypass application orchestration.
+7. Forbid persistence/HTTP/SDK types in `domain` unless mapped into pure domain concepts first.
+8. Keep third-party frameworks as internal adapter engines, never as the primary public API.
+
+When editing code, prefer introducing or extending ports/adapters over placing integration logic in domain or application internals.
+
+### Mandatory Architectural Review Before Finalizing
+
+For each changed feature or fix, verify and call out:
+
+- where the port is defined
+- where the adapter implementation lives
+- where the composition root wiring occurs
+- which boundary mappings were added (DTO/contract/entity <-> domain)
+- whether any breaking API surface changed
+
 ## Library API Paradigm
 
 - The brick is the product.
@@ -280,6 +305,7 @@ Domain libraries must not:
 - Adapters live in `infrastructure-*`.
 - Composition roots wire ports to adapters.
 - Do not place ports in persistence folders merely because repositories implement them.
+- Do not bypass ports with direct controller-to-repository or adapter-to-adapter calls.
 
 ### Facade Rule
 
