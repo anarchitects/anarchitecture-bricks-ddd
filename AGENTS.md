@@ -141,6 +141,13 @@ Apply this consistently to:
 
 Public APIs should be package-owned. Third-party SDK types, handlers, or entities should not become the primary public surface.
 
+## Angular Frontend Standards
+
+For Angular implementation details, state style selection, and explicit state scoping, follow:
+
+- `docs/guides/angular-layering-and-state.md`
+- `docs/adr/0003-angular-layering-and-explicit-state-scoping.md`
+
 ## Layer Rules
 
 ### Shared TS Domain (`ts/domain`)
