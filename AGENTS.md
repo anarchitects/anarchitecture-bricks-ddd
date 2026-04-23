@@ -100,6 +100,8 @@ The default expectation is that each bounded context contains:
 14. Define cross-context database relationships only in integration-only migration schemas when needed.
 15. Keep domain events, invariants, and aggregate rules in domain, not in controllers or repositories.
 16. Treat technology prefixes as first-class package taxonomy so Nest, Angular, Rails, and future families can coexist without ambiguity.
+17. Treat reusable bounded-context libraries as the primary product surface; deployment topology may evolve independently from the logical architecture.
+18. Prefer a modulith-first starting posture and extract to microservices or micro-frontends only when justified.
 
 ## Hexagonal Architecture Enforcement
 
@@ -147,6 +149,14 @@ For Angular implementation details, state style selection, and explicit state sc
 
 - `docs/guides/angular-layering-and-state.md`
 - `docs/adr/0003-angular-layering-and-explicit-state-scoping.md`
+
+## Topology And Migration Standards
+
+For topology selection, modulith-first guidance, and extraction/migration paths, follow:
+
+- `docs/guides/topology-modulith-microservices-microfrontends.md`
+- `docs/guides/migration-paths.md`
+- `docs/adr/0004-modulith-first-with-extraction-paths.md`
 
 ## Layer Rules
 
