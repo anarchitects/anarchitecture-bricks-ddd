@@ -12,6 +12,14 @@ Modular, reusable libraries and showcase applications for scalable software arch
 - Shared transport and public-contract packages separated from domain model packages.
 - Nx-managed example applications in `examples/` for integration and contract validation.
 
+## Companion Repo Position
+
+This repository is the DDD companion to:
+
+- `anarchitects/anarchitecture-bricks-3tier`
+
+The two repos should align on domain intent and public capability surface, while differing intentionally in internal architectural style.
+
 ## Purpose Of The Package Taxonomy
 
 Technology is part of the package naming on purpose.
@@ -281,6 +289,19 @@ The default recommendation is:
 
 The primary product of the repository is the reusable bounded-context library model. Deployment topology is an application composition concern that may evolve over time.
 
+## Cross-Repo Alignment Position
+
+This repository should stay aligned with `anarchitecture-bricks-3tier` at the domain/capability level.
+
+Alignment means:
+
+- comparable domain intent
+- comparable public capability surface
+- traceable mapping between 3-tier packages and DDD package families
+- documented migration paths from 3-tier structure to DDD structure
+
+Alignment does **not** mean identical file structure or reduced DDD explicitness.
+
 ## Quickstart
 
 ```bash
@@ -340,6 +361,8 @@ This DDD-first structure is the default because it gives the repository:
 - [Guide: Angular Layering and Explicit State Scoping](docs/guides/angular-layering-and-state.md)
 - [Guide: Topology Guide: Moduliths, Microservices, and Micro-Frontends](docs/guides/topology-modulith-microservices-microfrontends.md)
 - [Guide: Migration Paths](docs/guides/migration-paths.md)
+- [Guide: Alignment With `anarchitecture-bricks-3tier`](docs/guides/alignment-with-bricks-3tier.md)
+- [Guide: Migration From `anarchitecture-bricks-3tier`](docs/guides/migration-from-bricks-3tier.md)
 
 ## Architecture Decision Records
 
@@ -347,6 +370,7 @@ This DDD-first structure is the default because it gives the repository:
 - [ADR-0002: Technology-Prefixed Package Families With A Shared TS Core](docs/adr/0002-technology-prefixed-package-families-with-shared-ts-core.md)
 - [ADR-0003: Angular Layering And Explicit State Scoping](docs/adr/0003-angular-layering-and-explicit-state-scoping.md)
 - [ADR-0004: Modulith-First With Extraction Paths](docs/adr/0004-modulith-first-with-extraction-paths.md)
+- [ADR-0005: Align With `anarchitecture-bricks-3tier` And Accept 3-Tier Migration](docs/adr/0005-align-with-bricks-3tier-and-accept-3tier-migration.md)
 
 ## Documentation Tooling
 
