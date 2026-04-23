@@ -264,6 +264,23 @@ Examples:
 
 In a DDD repo, those engines belong in infrastructure layers, not in the shared TS core and not as the primary public API.
 
+## Topology Position
+
+This repository delivers reusable bounded-context libraries that can be composed in multiple deployment topologies.
+
+Supported topologies:
+
+- moduliths
+- microservices
+- micro-frontends
+
+The default recommendation is:
+
+- **start modulith-first**
+- **extract later when justified**
+
+The primary product of the repository is the reusable bounded-context library model. Deployment topology is an application composition concern that may evolve over time.
+
 ## Quickstart
 
 ```bash
@@ -321,12 +338,15 @@ This DDD-first structure is the default because it gives the repository:
 ## Architecture Guides
 
 - [Guide: Angular Layering and Explicit State Scoping](docs/guides/angular-layering-and-state.md)
+- [Guide: Topology Guide: Moduliths, Microservices, and Micro-Frontends](docs/guides/topology-modulith-microservices-microfrontends.md)
+- [Guide: Migration Paths](docs/guides/migration-paths.md)
 
 ## Architecture Decision Records
 
 - [ADR-0001: Hexagonal Architecture With DDD Boundaries](docs/adr/0001-hexagonal-architecture-with-ddd-boundaries.md)
 - [ADR-0002: Technology-Prefixed Package Families With A Shared TS Core](docs/adr/0002-technology-prefixed-package-families-with-shared-ts-core.md)
 - [ADR-0003: Angular Layering And Explicit State Scoping](docs/adr/0003-angular-layering-and-explicit-state-scoping.md)
+- [ADR-0004: Modulith-First With Extraction Paths](docs/adr/0004-modulith-first-with-extraction-paths.md)
 
 ## Documentation Tooling
 
