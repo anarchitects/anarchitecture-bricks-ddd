@@ -318,10 +318,15 @@ This DDD-first structure is the default because it gives the repository:
 - clean separation between domain model and transport model
 - infrastructure replaceability without pretending every engine is first-class
 
+## Architecture Guides
+
+- [Guide: Angular Layering and Explicit State Scoping](docs/guides/angular-layering-and-state.md)
+
 ## Architecture Decision Records
 
 - [ADR-0001: Hexagonal Architecture With DDD Boundaries](docs/adr/0001-hexagonal-architecture-with-ddd-boundaries.md)
 - [ADR-0002: Technology-Prefixed Package Families With A Shared TS Core](docs/adr/0002-technology-prefixed-package-families-with-shared-ts-core.md)
+- [ADR-0003: Angular Layering And Explicit State Scoping](docs/adr/0003-angular-layering-and-explicit-state-scoping.md)
 
 ## Documentation Tooling
 
