@@ -102,6 +102,8 @@ The default expectation is that each bounded context contains:
 16. Treat technology prefixes as first-class package taxonomy so Nest, Angular, Rails, and future families can coexist without ambiguity.
 17. Treat reusable bounded-context libraries as the primary product surface; deployment topology may evolve independently from the logical architecture.
 18. Prefer a modulith-first starting posture and extract to microservices or micro-frontends only when justified.
+19. Keep this repo aligned with `anarchitects/anarchitecture-bricks-3tier` at the domain and capability level, while preserving the DDD implementation style in this repo.
+20. Treat migration from 3-tier structure to DDD structure as a supported path.
 
 ## Hexagonal Architecture Enforcement
 
@@ -157,6 +159,14 @@ For topology selection, modulith-first guidance, and extraction/migration paths,
 - `docs/guides/topology-modulith-microservices-microfrontends.md`
 - `docs/guides/migration-paths.md`
 - `docs/adr/0004-modulith-first-with-extraction-paths.md`
+
+## Cross-Repo Alignment Standards
+
+For alignment with the 3-tier companion repo and migration expectations, follow:
+
+- `docs/guides/alignment-with-bricks-3tier.md`
+- `docs/guides/migration-from-bricks-3tier.md`
+- `docs/adr/0005-align-with-bricks-3tier-and-accept-3tier-migration.md`
 
 ## Layer Rules
 
