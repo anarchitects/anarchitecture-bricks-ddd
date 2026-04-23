@@ -149,7 +149,7 @@ Before extraction, confirm:
 The shell should own:
 
 - global navigation
-n- top-level composition concerns
+- top-level composition concerns
 - cross-cutting app-wide concerns that are intentionally shared
 
 The bounded context should continue to own:
