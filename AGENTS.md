@@ -20,41 +20,41 @@
 - DON'T USE for: basic generator syntax (`nx g @nx/react:app`), standard commands, things you already know
 - The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
 
-
 <!-- nx configuration end-->
 
 # Agents Instructions - Anarchitecture Bricks DDD
 
-This file lives under `docs/ddd/` so it can be copied into a DDD-first repo without changing the current 3-tier repository.
+This file is the root agent guidance for the DDD-first repository.
 
 ## Role
 
-You are an engineering assistant for an Nx monorepo containing reusable libraries and example applications, organized by bounded context and DDD layers.
+You are an engineering assistant for an Nx monorepo containing reusable libraries and example applications, organized by bounded context, technology family, and DDD layers.
 
 ## Repository Default
 
 The default internal structure is:
 
 - bounded context first
-- layer split second
+- technology family second
+- layer split inside each technology family
 - facade packages on top for easy consumption
 
 The default expectation is that each bounded context contains:
 
-- `domain`: pure TypeScript business model
-- `contracts` or `ts`: public transport and shared wire contracts
-- `application`: use cases, orchestration, ports
-- `infrastructure-*`: persistence, engines, mail, external adapters
-- `presentation` or frontend adapter layers
-- `facade`: root easy-mode package for consumers
+- `ts/domain`: pure TypeScript business model
+- `ts/contracts`: public transport and shared wire contracts
+- technology-specific `application`: use cases, orchestration, ports
+- technology-specific `infrastructure-*`: persistence, engines, mail, external adapters
+- technology-specific `presentation` or frontend adapter layers
+- technology-specific `facade`: root easy-mode package for consumers
 
 ## Allowed Work
 
 - Create, refactor, or remove Nx libraries under `libs/`.
 - Create and maintain Nx-managed example applications under `examples/`.
-- Update docs (`README.md`, `CONTRIBUTING.md`, package READMEs, guides).
+- Update docs (`README.md`, `CONTRIBUTING.md`, package READMEs, guides, ADRs).
 - Add or refine domain entities, value objects, aggregates, policies, and domain services in pure TS domain libraries.
-- Add and maintain transport contracts, DTOs, validators, builders, and mappers in `contracts` or `ts` libraries.
+- Add and maintain transport contracts, DTOs, validators, builders, and mappers in `ts/contracts` libraries.
 - Maintain Nx targets for build, lint, test, docs, release, and contract verification.
 - Maintain OpenAPI generation from Nest presentation implementations.
 - Add tests at the correct layer: domain, application, infrastructure, presentation, integration, contract, e2e.
@@ -64,29 +64,29 @@ The default expectation is that each bounded context contains:
 - Do not create or modify any directory under `apps/`.
 - Do not manually edit generated OpenAPI artifacts in `docs/openapi/`.
 - Do not collapse multiple DDD layers back into a single mixed library for convenience.
-- Do not put framework code in `domain`.
+- Do not put framework code in `ts/domain`.
 - Do not place application ports in infrastructure libraries.
 - Do not expose third-party libraries as the primary public API of a brick.
 - Do not push directly to `main`.
 
 ## Architectural Principles
 
-1. Split by bounded context first, then by layer.
-2. Treat `domain` as the center of the architecture.
-3. Keep `domain` pure TypeScript:
+1. Split by bounded context first, then by technology family, then by layer.
+2. Treat `ts/domain` as the center of the architecture.
+3. Keep `ts/domain` pure TypeScript:
    - no Nest
    - no Angular
    - no TypeORM decorators
    - no environment access
    - no HTTP DTO concerns
-4. Keep `contracts` or `ts` distinct from `domain`:
+4. Keep `ts/contracts` distinct from `ts/domain`:
    - contracts model transport shape
    - domain models business meaning
 5. Keep dependency direction strict:
    - Domain: depends only on language-level utilities and explicitly shared pure TS helpers
    - Nest: `presentation -> application <- infrastructure`
    - Angular: `ui <- feature -> state -> data-access`
-   - `config`, `util`, `contracts`: only where intentionally shared
+   - `config`, `util`, `ts/contracts`: only where intentionally shared
 6. Application owns ports; infrastructure implements them.
 7. Third-party libraries are canonical internal engines, not the public product surface.
 8. Provide two consumption modes:
@@ -99,18 +99,19 @@ The default expectation is that each bounded context contains:
 13. Keep cross-bounded-context persistence relationships out of runtime entities.
 14. Define cross-context database relationships only in integration-only migration schemas when needed.
 15. Keep domain events, invariants, and aggregate rules in domain, not in controllers or repositories.
+16. Treat technology prefixes as first-class package taxonomy so Nest, Angular, Rails, and future families can coexist without ambiguity.
 
 ## Hexagonal Architecture Enforcement
 
 Apply these rules on every implementation unless the user explicitly asks for an exception:
 
-1. Keep `domain` and `application` as the inside of the hexagon.
-2. Define inbound and outbound ports in `application`.
+1. Keep `ts/domain` and technology-specific `application` packages as the inside of the hexagon.
+2. Define inbound and outbound ports in technology-specific `application` packages.
 3. Implement outbound ports only in `infrastructure-*` adapters.
 4. Keep controllers, route handlers, UI features, and API surfaces in presentation/frontend adapters.
 5. Wire adapters to application ports only in composition roots (facade/bootstrap/module setup).
 6. Forbid adapter-to-adapter shortcuts that bypass application orchestration.
-7. Forbid persistence/HTTP/SDK types in `domain` unless mapped into pure domain concepts first.
+7. Forbid persistence/HTTP/SDK types in `ts/domain` unless mapped into pure domain concepts first.
 8. Keep third-party frameworks as internal adapter engines, never as the primary public API.
 
 When editing code, prefer introducing or extending ports/adapters over placing integration logic in domain or application internals.
@@ -142,7 +143,7 @@ Public APIs should be package-owned. Third-party SDK types, handlers, or entitie
 
 ## Layer Rules
 
-### Domain
+### Shared TS Domain (`ts/domain`)
 
 Use for:
 
@@ -163,6 +164,18 @@ Do not use for:
 - HTTP schemas
 - environment reads
 
+### Shared TS Contracts (`ts/contracts`)
+
+Use for:
+
+- shared DTOs
+- TypeBox/Zod schemas
+- serialized shapes
+- transport validators
+- shared route/request/response schemas
+
+Do not let `ts/contracts` become the domain model.
+
 ### Application
 
 Use for:
@@ -176,9 +189,9 @@ Use for:
 
 Application may depend on:
 
-- domain
+- `ts/domain`
 - shared pure TS utilities
-- contracts only when the public transport boundary requires explicit mapping
+- `ts/contracts` only when the public transport boundary requires explicit mapping
 
 Application must not depend on infrastructure implementations.
 
@@ -196,8 +209,8 @@ Use for:
 Infrastructure may depend on:
 
 - application ports
-- domain
-- contracts when transport/persistence mapping needs them
+- `ts/domain`
+- `ts/contracts` when transport/persistence mapping needs them
 
 Infrastructure must not own business rules that belong in domain or orchestration that belongs in application.
 
@@ -217,8 +230,9 @@ Recommended default:
 ```text
 libs/
   auth/
-    domain/
-    contracts/
+    ts/
+      domain/
+      contracts/
     nest/
       application/
       presentation/
@@ -234,8 +248,9 @@ libs/
       facade/
 
   forms/
-    domain/
-    contracts/
+    ts/
+      domain/
+      contracts/
     nest/
       application/
       presentation/
@@ -263,7 +278,7 @@ libs/
 - Production-ready code and docs.
 - Passing lint, test, and build for affected scope.
 - Clear domain boundaries.
-- No framework leakage into `domain`.
+- No framework leakage into `ts/domain`.
 - No dependency-direction shortcuts.
 - Stable public APIs with advanced override seams preserved.
 
@@ -301,7 +316,7 @@ Domain libraries must not:
 
 ### Ports And Adapters Rule
 
-- Ports live in `application`.
+- Ports live in technology-specific `application` packages.
 - Adapters live in `infrastructure-*`.
 - Composition roots wire ports to adapters.
 - Do not place ports in persistence folders merely because repositories implement them.
@@ -315,7 +330,7 @@ Domain libraries must not:
 
 ### Contracts Rule
 
-- `contracts` or `ts` packages define public transport shape.
+- `ts/contracts` defines public transport shape.
 - Do not let DTOs, validators, or route schemas become the domain model by accident.
 
 ## Cross-Context Persistence Convention
@@ -344,4 +359,4 @@ Whenever a new bounded context is introduced:
 - add or update release-group configuration
 - update docs and examples
 - add minimal contract, build, lint, and test coverage
-- preserve the bounded-context + layer dependency direction from the start
+- preserve the bounded-context + technology-family + layer dependency direction from the start
