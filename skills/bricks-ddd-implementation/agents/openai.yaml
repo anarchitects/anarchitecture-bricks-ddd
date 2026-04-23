@@ -1,0 +1,3 @@
+interface:
+  display_name: Bricks DDD Implementation
+  short_description: Implement and refactor code in the DDD bricks repo while preserving bounded-context and layer rules.
