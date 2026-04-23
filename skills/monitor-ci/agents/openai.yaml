@@ -1,0 +1,3 @@
+interface:
+  display_name: DDD Monitor CI
+  short_description: Diagnose and fix CI, Nx, docs, and validation failures in the DDD bricks repo.
