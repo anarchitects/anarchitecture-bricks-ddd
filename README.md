@@ -4,13 +4,31 @@ Modular, reusable libraries and showcase applications for scalable software arch
 
 ## Purpose
 
-- Publishable domain libraries in `libs/` organised by bounded context and layer.
-- A pure TypeScript domain layer at the center of each bounded context.
-- Explicit application, infrastructure, and presentation/frontend adapter layers around the domain model.
+- Publishable domain libraries in `libs/` organised by bounded context, technology family, and layer.
+- A shared TypeScript core at the center of each bounded context, expressed through `ts/domain` and `ts/contracts`.
+- Explicit application, infrastructure, and presentation/frontend adapter layers around the core model.
 - Public facade packages for easy consumption, with deeper layer packages available for advanced composition.
 - OpenAPI docs generated from Nest presentation implementation metadata (`@RouteSchema`).
 - Shared transport and public-contract packages separated from domain model packages.
 - Nx-managed example applications in `examples/` for integration and contract validation.
+
+## Purpose Of The Package Taxonomy
+
+Technology is part of the package naming on purpose.
+
+This repository is intended to support parallel reusable package families over time, for example:
+
+- `nest/*`
+- `angular/*`
+- future `rails/*`
+- future technology-specific adapter families where needed
+
+To make that scalable without losing the shared core, the repository distinguishes between:
+
+- `ts/*` for reusable TypeScript-first core packages
+- technology-prefixed package families for delivery and adapter concerns
+
+That means the same bounded context can expose a stable shared TS core while also providing framework-specific application, presentation, infrastructure, and facade packages.
 
 ## Core DDD Position
 
@@ -18,17 +36,18 @@ This repository structure treats the domain model as the center of the architect
 
 For each bounded context:
 
-- `domain` contains pure business model code
+- `ts/domain` contains pure business model code
+- `ts/contracts` contains shared public transport and wire contracts
 - `application` contains use cases, orchestration, and ports
 - `infrastructure` contains adapters to persistence, engines, mail, external systems
 - `presentation` or frontend adapter layers expose the product surface
 - facade packages provide an easy-mode entrypoint over those internals
 
-The domain layer is pure TypeScript:
+The shared core is pure TypeScript:
 
 - no Angular or Nest dependencies
 - no TypeORM decorators
-- no HTTP DTO concerns
+- no HTTP DTO concerns in `ts/domain`
 - no environment access
 - no transport framework assumptions
 
@@ -36,32 +55,32 @@ The domain layer is pure TypeScript:
 
 This repository follows hexagonal architecture inside each bounded context, with DDD as the modeling strategy.
 
-- **Core (inside the hexagon):** `domain` + `application`
-- **Ports (owned by application):** inbound and outbound interfaces in `application`
+- **Core (inside the hexagon):** `ts/domain` + application packages
+- **Ports (owned by application):** inbound and outbound interfaces in technology-specific application packages
 - **Adapters (outside the hexagon):** `infrastructure-*` and `presentation`/frontend adapters
 - **Composition roots:** wire ports to adapters in facades, module bootstrap, or app startup boundaries
 
 ### Non-negotiable dependency direction
 
-- `domain` depends on no framework/runtime infrastructure concerns
-- `application` depends on `domain` and declares ports
+- `ts/domain` depends on no framework/runtime infrastructure concerns
+- technology-specific `application` packages depend on `ts/domain` and may depend on `ts/contracts` only where explicit public-boundary mapping requires it
 - `infrastructure-*` implements application ports
 - `presentation` invokes application use cases via inbound ports
 - adapter-to-adapter coupling is forbidden unless done via application contracts
 
 ### Implementation checklist (every change)
 
-1. Put business rules, invariants, policies, and aggregate behavior in `domain`.
-2. Put orchestration and ports in `application`.
+1. Put business rules, invariants, policies, and aggregate behavior in `ts/domain`.
+2. Put orchestration and ports in technology-specific `application` packages.
 3. Put external I/O in adapters (`infrastructure-*`, `presentation`, frontend data-access).
-4. Map contracts/DTOs at boundaries; do not leak transport or persistence shapes into `domain`.
+4. Map contracts/DTOs at boundaries; do not leak transport or persistence shapes into `ts/domain`.
 5. Wire dependencies only in composition roots and facades.
 6. Keep third-party SDKs behind adapter implementations.
 
 ## Source of Truth
 
-1. Domain model and business rules: `libs/<bounded-context>/domain`.
-2. Public/shared transport contracts: `libs/<bounded-context>/contracts` or `libs/<bounded-context>/ts`.
+1. Domain model and business rules: `libs/<bounded-context>/ts/domain`.
+2. Public/shared transport contracts: `libs/<bounded-context>/ts/contracts`.
 3. HTTP contract shape: Nest presentation controllers + pure `@RouteSchema` schema fields.
 4. OpenAPI metadata (`operationId`, `tags`) is derived in `tools/api-specs/route-metadata.ts`.
 5. Generated OpenAPI artifacts: `docs/openapi/openapi.json` and `docs/openapi/openapi.yaml`.
@@ -71,8 +90,9 @@ This repository follows hexagonal architecture inside each bounded context, with
 ```text
 libs/
   auth/
-    domain/
-    contracts/
+    ts/
+      domain/
+      contracts/
     nest/
       application/
       presentation/
@@ -88,8 +108,9 @@ libs/
       facade/
 
   forms/
-    domain/
-    contracts/
+    ts/
+      domain/
+      contracts/
     nest/
       application/
       presentation/
@@ -119,6 +140,7 @@ examples/
 docs/
   openapi/
   guides/
+  adr/
 
 tools/
   api-specs/
@@ -130,21 +152,22 @@ tools/
 
 ### Bounded context structure
 
-- `domain` is the center and depends on nothing outside shared language-level utilities.
-- `application -> domain`
-- `infrastructure -> application`, `domain`
+- `ts/domain` is the center and depends on nothing outside shared language-level utilities.
+- `ts/contracts` is the shared TypeScript public-contract layer.
+- technology-specific `application -> ts/domain`
+- `infrastructure -> application`, `ts/domain`
 - `presentation -> application`
 - Angular `feature -> state -> data-access`
 - Angular `ui <- feature`
-- `config`, `util`, and `contracts` are shared support layers where explicitly intended
+- `config`, `util`, and `ts/contracts` are shared support layers where explicitly intended
 
 ### Allowed dependency direction
 
 - Nest: `presentation -> application <- infrastructure`
 - Angular: `ui <- feature -> state -> data-access`
-- Domain: pure TS only
-- Contracts: framework-agnostic transport/public schemas only
-- Hexagonal core: `domain <- application`; adapters point inward through ports
+- Domain: pure TS only, under `ts/domain`
+- Contracts: framework-agnostic transport/public schemas only, under `ts/contracts`
+- Hexagonal core: `ts/domain <- application`; adapters point inward through ports
 
 ### Forbidden shortcuts
 
@@ -159,7 +182,7 @@ tools/
 
 The repository keeps a strict distinction between domain model and public contract model.
 
-### Domain layer
+### Domain layer (`ts/domain`)
 
 Use the domain layer for:
 
@@ -179,9 +202,9 @@ Do not use the domain layer for:
 - Angular view models
 - Nest controller request/response types
 
-### Contracts layer
+### Contracts layer (`ts/contracts`)
 
-Use `contracts` or `ts` packages for:
+Use `ts/contracts` for:
 
 - shared DTOs
 - TypeBox/Zod schemas
@@ -210,6 +233,8 @@ Facade packages compose internal DDD layers but do not erase them.
 
 Expose layer-specific packages for targeted overrides:
 
+- `@anarchitects/auth-ts-domain`
+- `@anarchitects/auth-ts-contracts`
 - `@anarchitects/auth-nest-application`
 - `@anarchitects/auth-nest-presentation`
 - `@anarchitects/auth-nest-infrastructure-persistence`
@@ -237,7 +262,7 @@ Examples:
 - TypeORM as the internal persistence engine
 - Nodemailer via shared mailer modules as the internal mail engine
 
-In a DDD repo, those engines belong in infrastructure layers, not in the domain layer and not as the primary public API.
+In a DDD repo, those engines belong in infrastructure layers, not in the shared TS core and not as the primary public API.
 
 ## Quickstart
 
@@ -287,6 +312,7 @@ This DDD-first structure is the default because it gives the repository:
 
 - real architectural boundaries at the Nx project level
 - better dependency enforcement than folder conventions alone
+- a clear distinction between the shared TS core and technology-specific adapter families
 - smaller affected sets in CI
 - clearer ownership by bounded context and layer
 - clean separation between domain model and transport model
@@ -295,6 +321,7 @@ This DDD-first structure is the default because it gives the repository:
 ## Architecture Decision Records
 
 - [ADR-0001: Hexagonal Architecture With DDD Boundaries](docs/adr/0001-hexagonal-architecture-with-ddd-boundaries.md)
+- [ADR-0002: Technology-Prefixed Package Families With A Shared TS Core](docs/adr/0002-technology-prefixed-package-families-with-shared-ts-core.md)
 
 ## Documentation Tooling
 
