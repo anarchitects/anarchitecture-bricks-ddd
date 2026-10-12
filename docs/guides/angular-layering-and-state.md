@@ -43,13 +43,9 @@ Angular implementations in this repository should follow these defaults unless t
 - provider-based composition
 - router-driven feature composition and lazy loading where appropriate
 
-### Out of Scope For Now
+### Forms baseline and experimental APIs
 
-The following is intentionally excluded from the default Angular baseline in this repository:
-
-- Signal Forms
-
-Until explicitly adopted by a later decision, contributors should not introduce Signal Forms as the default forms approach for Angular libraries in this repo.
+The accepted [Modern Angular ADR](../adr/modern-angular-22-signal-forms.md), A07, supersedes the previous Signal Forms exclusion as of 2026-10-11. Use stable Signal Forms for new forms on an approved Angular 22+ runtime. Preserve supported legacy controls and staged releases until their explicit migration gates are met. Other unapproved experimental APIs remain outside the default baseline.
 
 ## Layering Model
 
@@ -297,7 +293,7 @@ Typical examples:
 
 #### Route-local scope
 
-Use when state belongs to a routed screen or flow and should be cleaned up automatically when leaving that route.
+Use when state belongs to a routed screen or flow and needs a clear provider visibility boundary. Router reuse and cached route injectors mean that navigation away does not guarantee service destruction; test lifetime and provide explicit reset/disposal where needed.
 
 This is the preferred default for most smart feature state.
 
@@ -361,7 +357,7 @@ The following are not the default pattern in this repository:
 - `feature` directly calling `data-access` to bypass `state`
 - `ui` components owning backend or orchestration logic
 - effect-driven business logic chains
-- introducing Signal Forms as the default forms approach
+- adopting Angular 22 Signal Forms APIs in a legacy runtime before its platform migration gate
 
 ## Implementation Checklist
 
@@ -374,7 +370,7 @@ Before merging Angular library changes, verify:
 5. `feature` consumes `state` instead of bypassing it.
 6. `ui` remains presentational.
 7. `data-access` remains transport-focused.
-8. Signal Forms are not introduced as a default dependency.
+8. New forms on an approved Angular 22+ runtime use the accepted Signal Forms baseline; existing legacy compatibility and release gates remain satisfied.
 
 ## Recommended State Note For Package READMEs
 
@@ -384,11 +380,14 @@ Use a short note like the following in Angular `state` package READMEs:
 State style: service+signals
 Scope: route-local feature state
 Rationale:
+
 - single feature owner
 - no entity normalization
 - limited derived state
 - low mutation complexity
+
 Escalation trigger:
+
 - if multiple smart consumers need shared coherent state
 - or if entity collection logic becomes central
 ```
@@ -399,6 +398,7 @@ Or:
 State style: signal-store
 Scope: bounded-context shared frontend state
 Rationale:
+
 - multiple smart consumers
 - entity-centric state
 - several mutations and derived projections
@@ -410,3 +410,7 @@ Rationale:
 - [ADR-0003: Angular Layering And Explicit State Scoping](../adr/0003-angular-layering-and-explicit-state-scoping.md)
 - [ADR-0002: Technology-Prefixed Package Families With A Shared TS Core](../adr/0002-technology-prefixed-package-families-with-shared-ts-core.md)
 - [ADR-0001: Hexagonal Architecture With DDD Boundaries](../adr/0001-hexagonal-architecture-with-ddd-boundaries.md)
+
+## Accepted Angular 22 Forms amendment
+
+The [Modern Angular ADR](../adr/modern-angular-22-signal-forms.md) was explicitly accepted on 2026-10-11. It replaces only the previous Signal Forms exclusion for new work on an approved Angular 22+ runtime. Layers, state scorecard, OnPush and explicit provider scopes stay in force. Read the [Modern Angular Engineering Guide](modern-angular/README.md) for API evidence, migration gates and test expectations.
