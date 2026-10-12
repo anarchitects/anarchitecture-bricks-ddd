@@ -1,6 +1,6 @@
 # ADR-0001: Nest 12 First-Party Infrastructure Through DDD Ports and Adapters
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-10-12
 - Owners: Architecture maintainers
 
