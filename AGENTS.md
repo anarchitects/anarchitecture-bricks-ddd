@@ -1,3 +1,7 @@
+## Mandatory architecture decision preflight for every AI agent
+
+**Before generating or editing any code**, including scaffolding, templates, tests, migration scripts and examples, enumerate and read **all ADRs** in both `anarchitects/anarchitecture-meta/adr/**` and **all ADRs in this repository** (`adr/**`, `docs/adr/**` and any other ADR locations). Read accepted, proposed, historical and superseded records; apply accepted decisions, respect each status, document relevant constraints and conflicts, and repeat whenever scope changes. Proposals do not override accepted ADRs. When either ADR source is inaccessible, report the blocker rather than claiming a review or proceeding to generate code. Meta: https://github.com/anarchitects/anarchitecture-meta/tree/main/adr.
+
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
 
