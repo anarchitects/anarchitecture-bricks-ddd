@@ -45,3 +45,7 @@ Thumbs.db
 
 .nx/polygraph
 .angular
+
+.nx/self-healing
+.nx/migrate-runs
+.yarn/**
