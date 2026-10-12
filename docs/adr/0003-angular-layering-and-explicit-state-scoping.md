@@ -56,7 +56,7 @@ Angular libraries in the repository should default to:
 
 Experimental APIs are not part of the default baseline for now.
 
-Specifically, Signal Forms are out of scope until adopted by a later explicit decision.
+The original Signal Forms exclusion was superseded on 2026-10-11 by the accepted [Modern Angular ADR](modern-angular-22-signal-forms.md), A07, for new work on an approved Angular 22+ runtime. Other unapproved experimental APIs remain outside the default baseline.
 
 ### State implementation rule
 
@@ -100,7 +100,7 @@ Instead, provide state intentionally at the appropriate scope:
 - feature-local
 - app-wide only when clearly justified
 
-Route-local scope is the preferred default for many smart feature states because it gives clear ownership and automatic cleanup when the user leaves the route.
+Route-local scope is the preferred default for many smart feature states because it gives clear ownership and injector visibility. Clarification (2026-10-11): router reuse and cached route injectors mean that leaving a route is not a general service-destruction guarantee. Verify the actual lifecycle and explicitly reset or dispose short-lived state where required.
 
 ## Consequences
 
@@ -129,7 +129,7 @@ Route-local scope is the preferred default for many smart feature states because
 7. State must be provided intentionally at the correct scope.
 8. `providedIn: 'root'` is not the default for domain state.
 9. Each state library chooses one implementation style, not a runtime-configurable dual implementation model.
-10. Signal Forms are not part of the default Angular baseline in this repository for now.
+10. Following the accepted Modern Angular amendment (2026-10-11), stable Signal Forms are the default for new forms on an approved Angular 22+ runtime; retain existing compatibility/release gates.
 
 ## Implementation Notes
 
@@ -144,3 +144,7 @@ That guide defines the practical responsibilities of each layer, the state escal
 - [Guide: Angular Layering and Explicit State Scoping](../guides/angular-layering-and-state.md)
 - [ADR-0002: Technology-Prefixed Package Families With A Shared TS Core](./0002-technology-prefixed-package-families-with-shared-ts-core.md)
 - [ADR-0001: Hexagonal Architecture With DDD Boundaries](./0001-hexagonal-architecture-with-ddd-boundaries.md)
+
+## Accepted Modern Angular amendment (2026-10-11)
+
+Following explicit maintainer approval, the [Modern Angular 22 ADR](modern-angular-22-signal-forms.md), decision A07, supersedes only this record's earlier Signal Forms exclusion (modern Angular baseline and summary item 10) for new work on an approved Angular 22+ runtime. All layer, state-selection, explicit-provider and other experimental-API restrictions remain in force. Existing runtime migrations and compatibility releases retain their implementation gates. See the [engineering guide](../guides/modern-angular/README.md) for source-to-current-API evidence.
