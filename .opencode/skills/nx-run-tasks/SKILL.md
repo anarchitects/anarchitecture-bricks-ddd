@@ -9,16 +9,6 @@ Keep in mind that you might have to prefix things with npx/pnpx/yarn if the user
 
 For more details on any command, run it with `--help` (e.g. `nx run-many --help`, `nx affected --help`).
 
-## Hexagonal + DDD Guardrails During Verification
-
-When running tasks after code changes, validate architecture as well as pass/fail status:
-
-- Domain libraries should build/test without framework adapter dependencies.
-- Application targets should enforce ports/interfaces without importing adapter implementations.
-- Adapter projects should depend inward on application/domain, not sideways on other adapters.
-- Presentation/frontend layers should call application use cases, not infrastructure details directly.
-- If a task passes but boundaries are violated, treat the work as incomplete.
-
 ## Understand which tasks can be run
 
 You can check those via `nx show project <projectname> --json`, for example `nx show project myapp --json`. It contains a `targets` section which has information about targets that can be run. You can also just look at the `package.json` scripts or `project.json` targets, but you might miss out on inferred tasks by Nx plugins.

@@ -18,17 +18,6 @@ Primary docs:
 
 Read the nx docs if you have the tools for it.
 
-## Hexagonal + DDD Guardrails
-
-After importing code, align structure to bounded context + layer boundaries:
-
-- Split by bounded context first, then by layer (`domain`, `contracts/ts`, `application`, `infrastructure-*`, `presentation`, `facade`).
-- Move business rules into pure TS `domain` packages.
-- Move orchestration and ports into `application` packages.
-- Keep external framework/SDK/db/http integrations in `infrastructure-*` or presentation/frontend adapter layers.
-- Add boundary mappers so DTOs/entities do not become domain models.
-- Ensure wiring happens in facades/composition roots; remove direct presentation -> infrastructure shortcuts.
-
 ## Import Strategy
 
 **Subdirectory-at-a-time** (`nx import <source> apps --source=apps`):

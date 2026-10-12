@@ -1,6 +1,6 @@
 ---
 name: nx-generate
-description: Generate code using nx generators. INVOKE IMMEDIATELY when user mentions scaffolding, setup, structure, creating apps/libs, or setting up project structure. Trigger words - scaffold, setup, create a ... app, create a ... lib, project structure, generate, add a new project. ALWAYS use this BEFORE calling nx_docs or exploring - this skill handles discovery internally.
+description: Generate code using nx generators. INVOKE IMMEDIATELY when user mentions scaffolding, setup, structure, creating apps/libs, or setting up project structure. Trigger words - scaffold, setup, create a new app, create a new lib, project structure, generate, add a new project. ALWAYS use this BEFORE calling nx_docs or exploring - this skill handles discovery internally.
 ---
 
 # Run Nx Generator
@@ -13,17 +13,6 @@ This skill applies when the user wants to:
 - Scaffold features or boilerplate code
 - Run workspace-specific or custom generators
 - Do anything else that an nx generator exists for
-
-## Hexagonal + DDD Guardrails
-
-Scaffolding must preserve bounded context and layer boundaries:
-
-- Generate by bounded context first, then by layer (`domain`, `contracts/ts`, `application`, `infrastructure-*`, `presentation`, `facade`).
-- Keep `domain` pure TypeScript with no framework, transport, persistence, or environment concerns.
-- Place inbound/outbound ports in `application`; never in infrastructure folders.
-- Keep adapters in `infrastructure-*` and presentation/frontend adapter layers.
-- Wire adapters in composition roots/facades, not inside domain logic.
-- Preserve both consumption modes: root facade for easy mode and layer packages for advanced overrides.
 
 ## Key Principles
 
