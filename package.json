@@ -6,11 +6,11 @@
   "devDependencies": {
     "@angular-devkit/core": "~21.2.0",
     "@nestjs/schematics": "^11.0.0",
-    "@nx/angular": "22.6.3",
-    "@nx/js": "22.6.3",
-    "@nx/nest": "22.6.3",
-    "@nx/workspace": "22.6.3",
-    "nx": "22.6.3"
+    "@nx/angular": "23.3.0",
+    "@nx/js": "23.3.0",
+    "@nx/nest": "23.3.0",
+    "@nx/workspace": "23.3.0",
+    "nx": "23.3.0"
   },
-  "packageManager": "yarn@4.13.0"
+  "packageManager": "yarn@4.18.1"
 }
