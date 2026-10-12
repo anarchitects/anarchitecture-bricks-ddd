@@ -12,5 +12,5 @@
     "@nx/workspace": "23.3.0",
     "nx": "23.3.0"
   },
-  "packageManager": "yarn@4.13.0"
+  "packageManager": "yarn@4.18.1"
 }
