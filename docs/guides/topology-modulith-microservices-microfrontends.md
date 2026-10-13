@@ -137,7 +137,7 @@ A microservice topology deploys one or more bounded contexts as separately deplo
 ### Typical shape
 
 - one Nest service per extracted bounded context or service boundary
-- shared contracts still come from bounded-context libraries
+- shared public HTTP contracts come from immutable `anarchitecture-contracts` versions, consumed through bounded-context transport adapters/exports
 - composition moves from in-process calls to runtime contracts
 
 ### What changes
@@ -268,7 +268,7 @@ Recommended default:
 
 When extracting:
 
-- preserve the context libraries as the conceptual source of truth
+- preserve context libraries as the source of business meaning; shared public HTTP authority remains in `anarchitecture-contracts` under [ADR-0006](../adr/0006-canonical-public-api-contract-consumption.md)
 - move service-specific composition into the service host
 - make runtime boundaries explicit and contract-owned
 - do not duplicate domain meaning across services unless intentionally translated

@@ -8,7 +8,7 @@ Modular, reusable libraries and showcase applications for scalable software arch
 - A shared TypeScript core at the center of each bounded context, expressed through `ts/domain` and `ts/contracts`.
 - Explicit application, infrastructure, and presentation/frontend adapter layers around the core model.
 - Public facade packages for easy consumption, with deeper layer packages available for advanced composition.
-- OpenAPI docs generated from Nest presentation implementation metadata (`@RouteSchema`).
+- Shared HTTP contracts owned by `anarchitecture-contracts`, with Zod-first schemas, operation definitions and published OpenAPI 3.1.
 - Shared transport and public-contract packages separated from domain model packages.
 - Nx-managed example applications in `examples/` for integration and contract validation.
 
@@ -45,7 +45,7 @@ This repository structure treats the domain model as the center of the architect
 For each bounded context:
 
 - `ts/domain` contains pure business model code
-- `ts/contracts` contains shared public transport and wire contracts
+- `ts/contracts` contains local transport adapters and compatibility exports consuming canonical shared HTTP contracts
 - `application` contains use cases, orchestration, and ports
 - `infrastructure` contains adapters to persistence, engines, mail, external systems
 - `presentation` or frontend adapter layers expose the product surface
@@ -88,10 +88,34 @@ This repository follows hexagonal architecture inside each bounded context, with
 ## Source of Truth
 
 1. Domain model and business rules: `libs/<bounded-context>/ts/domain`.
-2. Public/shared transport contracts: `libs/<bounded-context>/ts/contracts`.
-3. HTTP contract shape: Nest presentation controllers + pure `@RouteSchema` schema fields.
-4. OpenAPI metadata (`operationId`, `tags`) is derived in `tools/api-specs/route-metadata.ts`.
-5. Generated OpenAPI artifacts: `docs/openapi/openapi.json` and `docs/openapi/openapi.yaml`.
+2. Shared public HTTP operations and wire schemas: [`anarchitecture-contracts`](https://github.com/anarchitects/anarchitecture-contracts), authored as Zod schemas plus first-class operation definitions. Deterministic OpenAPI 3.1 is its published artifact.
+3. Local `libs/<bounded-context>/ts/contracts`: framework-neutral transport adapters and compatibility exports, explicitly nonauthoritative for shared HTTP operations.
+4. Nest controllers, `@RouteSchema`, `tools/api-specs/route-metadata.ts` and implementation-generated `docs/openapi/*`: legacy baseline or conformance evidence only, never the public API master.
+
+Consume exact published `@anarchitects/*-contracts` versions or documented immutable
+artifacts with integrity evidence. Never overwrite released versions or import
+3-tier implementation code, packages or generated specifications as DDD's contract
+dependency. Map canonical transport shapes at presentation/application boundaries;
+keep domain invariants and internal ports in DDD. Existing `auth-ts` policy
+semantics remain separate from their canonical HTTP representation.
+
+Shared API changes start in contracts with compatibility review and a versioned
+release. DDD support requires both canonical OpenAPI checks and real HTTP
+positive/negative/security tests against that version. See
+[ADR-0006](docs/adr/0006-canonical-public-api-contract-consumption.md) and
+[Meta ADR-0012](https://github.com/anarchitects/anarchitecture-meta/blob/main/adr/0012-canonical-public-api-contract-ownership.md).
+
+### Current adoption status
+
+This checkout contains governance documentation and Nx workspace foundations;
+it currently has no Nx projects. The structure, package names and commands below
+describe the intended architecture, not available libraries or executable targets.
+Contracts [issue #2](https://github.com/anarchitects/anarchitecture-contracts/issues/2)
+delivers foundations only. DDD [issue #24](https://github.com/anarchitects/anarchitecture-bricks-ddd/issues/24)
+establishes ownership guidance, not package adoption, runtime support or parity.
+Auth, Forms, Identity and Newsletter support must be demonstrated individually
+under [epic #23](https://github.com/anarchitects/anarchitecture-bricks-ddd/issues/23);
+missing implementations are not supported capabilities.
 
 ## Repository Structure
 
@@ -161,7 +185,7 @@ tools/
 ### Bounded context structure
 
 - `ts/domain` is the center and depends on nothing outside shared language-level utilities.
-- `ts/contracts` is the shared TypeScript public-contract layer.
+- `ts/contracts` is the local TypeScript transport/compatibility layer consuming canonical shared HTTP contracts.
 - technology-specific `application -> ts/domain`
 - `infrastructure -> application`, `ts/domain`
 - `presentation -> application`
@@ -174,7 +198,7 @@ tools/
 - Nest: `presentation -> application <- infrastructure`
 - Angular: `ui <- feature -> state -> data-access`
 - Domain: pure TS only, under `ts/domain`
-- Contracts: framework-agnostic transport/public schemas only, under `ts/contracts`
+- Contracts: framework-agnostic transport adapters/exports under `ts/contracts`; shared HTTP schemas authored in `anarchitecture-contracts`
 - Hexagonal core: `ts/domain <- application`; adapters point inward through ports
 
 ### Forbidden shortcuts
@@ -214,13 +238,14 @@ Do not use the domain layer for:
 
 Use `ts/contracts` for:
 
-- shared DTOs
-- TypeBox/Zod schemas
-- serialized response shapes
-- route-schema imports for Nest presentation
-- frontend/backend transport alignment
+- canonical Zod schema and inferred wire-type imports/exports
+- framework-neutral transport adapters and compatibility exports
+- serialization and validation support consuming canonical schemas
+- audited legacy TypeBox compatibility material during migration
+- frontend/backend alignment to the same immutable contract version
 
-The contracts layer is package-owned public API. The domain layer is business-owned internal model.
+The local contracts layer may expose package-owned compatibility APIs, but it
+does not author shared HTTP contracts. The domain layer owns business meaning.
 
 ## Public Consumption Model
 
@@ -304,10 +329,14 @@ Alignment does **not** mean identical file structure or reduced DDD explicitness
 
 ## Quickstart
 
+These are planned workflows; the projects and targets are not yet implemented in
+this checkout. Implementation-derived OpenAPI will provide conformance evidence,
+not canonical contract generation.
+
 ```bash
 yarn install
 
-# OpenAPI from implementation
+# Implementation OpenAPI evidence (canonical artifacts come from contracts)
 nx run api-specs:generate
 nx run api-specs:lint
 nx run api-specs:verify
@@ -324,7 +353,7 @@ nx run auth-angular-example:serve
 nx run forms-nest-example:serve
 nx run forms-angular-example:serve
 
-# Contract checks
+# Planned implementation checks; canonical HTTP conformance must also be proven
 nx run auth-nest-example:contract-test
 nx run auth-angular-example:contract-test
 nx run forms-nest-example:contract-test
@@ -333,16 +362,16 @@ nx run forms-angular-example:contract-test
 
 ## Key Nx Targets
 
-| Command                                                    | Description                                           |
-| ---------------------------------------------------------- | ----------------------------------------------------- |
-| `nx run api-specs:generate`                                | Generate OpenAPI JSON/YAML from Nest controllers      |
-| `nx run api-specs:lint`                                    | Lint generated OpenAPI                                |
-| `nx run api-specs:verify`                                  | Validate required endpoints + snapshot stability      |
-| `nx run angular-docs:generate`                             | Generate and merge Compodoc docs                      |
-| `nx run docs-hub:validate-content`                         | Enforce required docs sections for guides and READMEs |
-| `nx run docs-hub:build`                                    | Build static docs hub pages                           |
-| `nx run release-tools:validate-non-bumping-commits`        | Enforce non-bumping commit types for docs-surface PRs |
-| `nx affected -t lint test build`                           | Standard affected checks                              |
+| Command                                             | Description                                               |
+| --------------------------------------------------- | --------------------------------------------------------- |
+| `nx run api-specs:generate`                         | Generate implementation OpenAPI evidence from controllers |
+| `nx run api-specs:lint`                             | Lint generated OpenAPI                                    |
+| `nx run api-specs:verify`                           | Validate required endpoints + snapshot stability          |
+| `nx run angular-docs:generate`                      | Generate and merge Compodoc docs                          |
+| `nx run docs-hub:validate-content`                  | Enforce required docs sections for guides and READMEs     |
+| `nx run docs-hub:build`                             | Build static docs hub pages                               |
+| `nx run release-tools:validate-non-bumping-commits` | Enforce non-bumping commit types for docs-surface PRs     |
+| `nx affected -t lint test build`                    | Standard affected checks                                  |
 
 ## Why This Structure
 
@@ -371,12 +400,13 @@ This DDD-first structure is the default because it gives the repository:
 - [ADR-0003: Angular Layering And Explicit State Scoping](docs/adr/0003-angular-layering-and-explicit-state-scoping.md)
 - [ADR-0004: Modulith-First With Extraction Paths](docs/adr/0004-modulith-first-with-extraction-paths.md)
 - [ADR-0005: Align With `anarchitecture-bricks-3tier` And Accept 3-Tier Migration](docs/adr/0005-align-with-bricks-3tier-and-accept-3tier-migration.md)
+- [ADR-0006: Consume Canonical Public API Contracts Across DDD Boundaries](docs/adr/0006-canonical-public-api-contract-consumption.md)
 
 ## Documentation Tooling
 
 - Storybook remains the default UI documentation and interaction surface.
 - Compodoc provides Angular technical API metadata and pages.
-- OpenAPI provides HTTP contract documentation derived from implementation.
+- Canonical published OpenAPI 3.1 comes from `anarchitecture-contracts`; implementation-derived OpenAPI provides baseline/conformance evidence only.
 - Docs hub static site is generated via `nx run docs-hub:build`.
 - Package `README.md` files remain first-class docs sources and should describe both easy mode and advanced mode usage.
 

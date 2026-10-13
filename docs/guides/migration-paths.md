@@ -39,7 +39,12 @@ Extract when the bounded context is already sufficiently clear and stable.
 
 ### 2. Preserve the shared TS core
 
-Keep `ts/domain` and `ts/contracts` as the conceptual source of truth for the bounded context whenever possible.
+Keep `ts/domain` authoritative for business meaning and internal application
+ports in their application packages. Local `ts/contracts` consumes shared public
+HTTP contracts from `anarchitecture-contracts` through transport adapters and
+compatibility exports; it is not a competing source of truth. Preserve the same
+immutable canonical contract version across topology changes. See
+[ADR-0006](../adr/0006-canonical-public-api-contract-consumption.md).
 
 ### 3. Make runtime boundaries explicit
 
@@ -224,7 +229,7 @@ When moving to runtime boundaries:
 
 - identify the owned contract
 - make it explicit
-- keep ownership with the bounded context
+- keep business meaning and internal port ownership with the bounded context; shared public HTTP contracts remain owned by `anarchitecture-contracts`
 - avoid letting infrastructure details redefine the business contract
 
 ## What Usually Needs To Change

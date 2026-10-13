@@ -1,3 +1,9 @@
+Read [AGENTS.md](AGENTS.md) before work, including its mandatory Meta/local ADR
+preflight. For shared public HTTP API changes, read the applicable canonical
+contract/version and compatibility rules in `anarchitecture-contracts` and follow
+[ADR-0006](docs/adr/0006-canonical-public-api-contract-consumption.md). Local
+controllers, DTOs and generated OpenAPI are not the shared contract authority.
+
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
 
@@ -19,6 +25,5 @@
 - USE for: advanced config options, unfamiliar flags, migration guides, plugin configuration, edge cases
 - DON'T USE for: basic generator syntax (`nx g @nx/react:app`), standard commands, things you already know
 - The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
-
 
 <!-- nx configuration end-->

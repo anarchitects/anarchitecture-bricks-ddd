@@ -23,6 +23,15 @@ A successful migration preserves:
 
 What changes is the internal structure and separation of responsibilities.
 
+Shared public HTTP contracts are owned by
+[`anarchitecture-contracts`](https://github.com/anarchitects/anarchitecture-contracts),
+not by either implementation. Before migration, read the applicable canonical
+contract/version and compatibility rules. Consume exact published versions or
+documented immutable artifacts with integrity evidence; do not import 3-tier
+code, packages or generated API specifications as DDD contract dependencies.
+The structural mapping below does not transfer shared HTTP authorship into DDD.
+See [ADR-0006](../adr/0006-canonical-public-api-contract-consumption.md).
+
 ## Canonical Structural Mapping
 
 ### Shared TS
@@ -102,6 +111,11 @@ Start by separating:
 
 This is usually the most important structural change because this repo treats those as separate first-class packages.
 
+Keep business rules in `ts/domain`; use local `ts/contracts` only for transport
+adapters/compatibility exports consuming canonical shared HTTP schemas. Map
+requests, responses and errors at presentation/application boundaries. Preserve
+`auth-ts` policy semantics separately from their HTTP representation.
+
 ### Step 3: extract Nest layer responsibilities
 
 Inside the 3-tier Nest package, identify:
@@ -132,6 +146,11 @@ After the structural migration, verify that the target DDD packages still repres
 ### Step 6: validate with comparable examples
 
 Use or create example flows that prove the migrated DDD bounded context still supports the equivalent use cases.
+
+Prove each claimed operation against the same immutable canonical version with
+OpenAPI comparison and actual HTTP positive, negative and security tests. Record
+missing capabilities as unsupported. Contract packages and conformance tooling
+must be available before adoption; governance work alone does not establish parity.
 
 ## Incremental Migration Strategy
 
