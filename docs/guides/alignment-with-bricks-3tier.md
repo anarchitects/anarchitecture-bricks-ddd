@@ -64,6 +64,19 @@ The 3-tier repo is the companion implementation style for:
 
 ## Canonical Mapping Model
 
+For shared public HTTP APIs, both implementations consume immutable versioned
+contracts from [`anarchitecture-contracts`](https://github.com/anarchitects/anarchitecture-contracts).
+Neither implementation's controllers, local DTOs or generated OpenAPI govern the
+other. Local `ts/contracts` adapts or re-exports canonical wire contracts; domain
+meaning and internal application ports remain in each bounded context. See
+[ADR-0006](../adr/0006-canonical-public-api-contract-consumption.md).
+
+The structural mapping below is migration guidance, not permission to import
+3-tier code, packages or generated specifications as DDD contract dependencies.
+Capability alignment is a goal: claim support only for operations and contract
+versions proven by canonical OpenAPI and real HTTP positive/negative/security
+tests. Record missing implementations explicitly.
+
 Use this mapping model when documenting or implementing equivalent capabilities.
 
 ### Shared TS

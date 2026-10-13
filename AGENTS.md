@@ -4,6 +4,15 @@
 
 Then read **all relevant engineering guides** for the affected packages and topics, including the [Modern Angular Engineering Guide](docs/guides/modern-angular/README.md), its [repository application](docs/guides/modern-angular/repository-application.md) and linked topic guides for Angular work. Never commit the licensed Modern Angular PDF, extracted text, scans or copied source passages.
 
+For shared public HTTP API work, also read the applicable canonical operations,
+schemas, exact version, compatibility rules and fixtures in
+[`anarchitecture-contracts`](https://github.com/anarchitects/anarchitecture-contracts).
+Follow [local ADR-0006](docs/adr/0006-canonical-public-api-contract-consumption.md)
+and [Meta ADR-0012](https://github.com/anarchitects/anarchitecture-meta/blob/main/adr/0012-canonical-public-api-contract-ownership.md).
+Record the selected immutable contract version and boundary mappings. If that
+contract is unavailable, report the dependency and limit work to governance or
+inventory; do not generate a divergent local API or claim adoption.
+
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
 
@@ -48,7 +57,7 @@ The default internal structure is:
 The default expectation is that each bounded context contains:
 
 - `ts/domain`: pure TypeScript business model
-- `ts/contracts`: public transport and shared wire contracts
+- `ts/contracts`: local transport adapters/compatibility exports consuming canonical shared HTTP contracts
 - technology-specific `application`: use cases, orchestration, ports
 - technology-specific `infrastructure-*`: persistence, engines, mail, external adapters
 - technology-specific `presentation` or frontend adapter layers
@@ -60,9 +69,9 @@ The default expectation is that each bounded context contains:
 - Create and maintain Nx-managed example applications under `examples/`.
 - Update docs (`README.md`, `CONTRIBUTING.md`, package READMEs, guides, ADRs).
 - Add or refine domain entities, value objects, aggregates, policies, and domain services in pure TS domain libraries.
-- Add and maintain transport contracts, DTOs, validators, builders, and mappers in `ts/contracts` libraries.
+- Maintain transport adapters, compatibility exports, DTO mappings and validators in `ts/contracts` without duplicating canonical shared HTTP authorship.
 - Maintain Nx targets for build, lint, test, docs, release, and contract verification.
-- Maintain OpenAPI generation from Nest presentation implementations.
+- Maintain implementation-derived OpenAPI only as baseline/conformance evidence against the canonical contract version.
 - Add tests at the correct layer: domain, application, infrastructure, presentation, integration, contract, e2e.
 
 ## Forbidden Work
@@ -201,13 +210,14 @@ Do not use for:
 
 Use for:
 
-- shared DTOs
-- TypeBox/Zod schemas
-- serialized shapes
-- transport validators
-- shared route/request/response schemas
+- framework-neutral transport adapters and compatibility exports
+- imports/re-exports of canonical Zod schemas and inferred wire types
+- boundary serialization and validation support consuming those schemas
+- audited legacy TypeBox material during a versioned compatibility migration
 
-Do not let `ts/contracts` become the domain model.
+Do not independently author shared public HTTP operations or schemas here, and
+do not let `ts/contracts` become the domain model. Request/response translation
+belongs at explicit application/presentation boundaries.
 
 ### Application
 
@@ -363,7 +373,12 @@ Domain libraries must not:
 
 ### Contracts Rule
 
-- `ts/contracts` defines public transport shape.
+- `anarchitecture-contracts` solely owns shared public HTTP transport shape and operation definitions, with Zod-first source and deterministic published OpenAPI 3.1.
+- Consume exact published `@anarchitects/*-contracts` versions or documented immutable artifacts with integrity evidence; never mutable branches, `latest` or sibling checkout paths. Do not overwrite published versions.
+- Local `ts/contracts`, Nest controllers, `@RouteSchema` and generated specifications are consumers or compatibility/conformance evidence, never a second authority.
+- Do not import 3-tier implementation code, packages or generated API specifications to implement DDD contracts.
+- Preserve `auth-ts` authorization-policy semantics; map canonical HTTP policy representations without lossy duplication.
+- Require canonical OpenAPI checks and actual HTTP positive/negative/security tests before claiming support for a capability/version. Missing implementations remain unsupported.
 - Do not let DTOs, validators, or route schemas become the domain model by accident.
 
 ## Cross-Context Persistence Convention
