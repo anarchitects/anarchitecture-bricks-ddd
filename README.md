@@ -117,6 +117,10 @@ Auth, Forms, Identity and Newsletter support must be demonstrated individually
 under [epic #23](https://github.com/anarchitects/anarchitecture-bricks-ddd/issues/23);
 missing implementations are not supported capabilities.
 
+See the [audited DDD capability inventory](docs/guides/ddd-capability-inventory.md)
+for per-context support status, legacy route mappings, reference discrepancies and
+the phased adoption gates. At the audited revision all four contexts are absent.
+
 ## Repository Structure
 
 ```text
@@ -387,6 +391,7 @@ This DDD-first structure is the default because it gives the repository:
 
 ## Architecture Guides
 
+- [Guide: DDD Capability Inventory and Canonical API Mapping](docs/guides/ddd-capability-inventory.md)
 - [Guide: Angular Layering and Explicit State Scoping](docs/guides/angular-layering-and-state.md)
 - [Guide: Topology Guide: Moduliths, Microservices, and Micro-Frontends](docs/guides/topology-modulith-microservices-microfrontends.md)
 - [Guide: Migration Paths](docs/guides/migration-paths.md)

@@ -93,6 +93,10 @@ Migration question:
 
 ## Recommended Migration Sequence
 
+Start with the [audited DDD capability inventory](./ddd-capability-inventory.md)
+and its phased dependency gates. It distinguishes absent DDD implementations from
+legacy 3-tier reference routes and pending canonical operation definitions.
+
 ### Step 1: confirm the target bounded context
 
 Before migrating, confirm that the 3-tier domain maps cleanly to one target bounded context in the DDD repo.
