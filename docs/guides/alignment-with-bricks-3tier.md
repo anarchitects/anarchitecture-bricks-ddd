@@ -173,4 +173,5 @@ Avoid:
 
 ## Related
 
+- [DDD Capability Inventory and Canonical API Mapping](./ddd-capability-inventory.md) records actual support and gaps; structural alignment does not establish runtime parity.
 - [Guide: Migration From `anarchitecture-bricks-3tier`](./migration-from-bricks-3tier.md)
