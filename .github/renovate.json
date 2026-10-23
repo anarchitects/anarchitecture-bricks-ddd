@@ -1,0 +1,76 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)"
+  ],
+  "enabledManagers": ["npm", "github-actions"],
+  "includePaths": [
+    "package.json",
+    ".yarnrc.yml",
+    "yarn.lock",
+    ".github/workflows/**",
+    ".github/actions/**"
+  ],
+  "timezone": "Europe/Brussels",
+  "schedule": ["before 6am on monday"],
+  "labels": ["dependencies"],
+  "rangeStrategy": "bump",
+  "semanticCommitScope": null,
+  "prConcurrentLimit": 2,
+  "prHourlyLimit": 1,
+  "automerge": false,
+  "platformAutomerge": false,
+  "vulnerabilityAlerts": {
+    "enabled": false
+  },
+  "osvVulnerabilityAlerts": false,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on monday"],
+    "automerge": false
+  },
+  "packageRules": [
+    {
+      "description": "Override preset grouping; keep production updates and majors separate unless explicitly grouped below.",
+      "matchManagers": ["npm", "github-actions"],
+      "groupName": null,
+      "automerge": false
+    },
+    {
+      "description": "Keep first-party Nx packages aligned; review and run required Nx migrations.",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["nx", "@nx/**"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "nx-updates"
+    },
+    {
+      "description": "Nest 11 is patch-only; Nest 12 adoption remains a separately reviewed migration.",
+      "matchManagers": ["npm"],
+      "matchPackageNames": [
+        "@nestjs/common",
+        "@nestjs/core",
+        "@nestjs/testing",
+        "@nestjs/platform-*",
+        "@nestjs/microservices",
+        "@nestjs/websockets"
+      ],
+      "matchCurrentVersion": "11.x",
+      "matchUpdateTypes": ["minor", "major"],
+      "enabled": false
+    },
+    {
+      "description": "Keep major upgrades separate and require manual review for every update.",
+      "matchManagers": ["npm", "github-actions"],
+      "matchUpdateTypes": ["major"],
+      "groupName": null,
+      "automerge": false
+    }
+  ],
+  "prBodyNotes": [
+    "Manual review required. Preserve existing runtime compatibility; package upgrades do not perform Nx migrations or authorize a Nest 12/Native migration.",
+    "For published packages, review the affected Nx projects and correct Conventional Commit/release intent before merging. No automatic publishing or merging."
+  ]
+}
