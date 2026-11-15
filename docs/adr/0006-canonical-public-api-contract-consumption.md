@@ -92,7 +92,7 @@ port, composition and compatibility rules remain in force.
 8. **Compatibility and sequencing.** Preserve the audited wire baseline unless a
    separately reviewed, versioned breaking change and consumer migration are
    accepted. Publish contracts and fixtures/tooling before dependent code
-   adoption. Keep Nest 12 as the new-feature line and Nest 11 patch/security-only.
+   adoption. Keep Nest 12 as the current new-feature line, and Nest 11 security/critical-fix-only during the time-boxed prior-major maintenance window under [Meta ADR-0022](https://github.com/anarchitects/anarchitecture-meta/blob/main/adr/0022-core-framework-lifecycle-90-day-maintenance.md). Framework transitions do not relax canonical wire compatibility, consumer evidence or domain-port boundaries.
    Authority changes do not authorize runtime upgrades, provider replacement,
    feature backports or removal of compatibility exports. Rollback uses the last
    compatible immutable pin; fixes go into new versions.
