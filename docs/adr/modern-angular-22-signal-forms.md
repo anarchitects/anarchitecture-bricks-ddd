@@ -20,7 +20,7 @@ Apply these decisions to Angular implementations, generated Angular output, exam
 
 ### A01 — Platform and compatibility
 
-For new Angular work governed by this accepted ADR, target Angular 22+ with its supported Node/TypeScript/RxJS toolchain. A target policy is not an automatic dependency upgrade. Preserve staged Angular 21-compatible releases, existing package peer ranges and older runnable examples until an explicit migration is accepted. Verify the actual runtime version rather than inferring it from Nx. Avoid experimental APIs without a separate bounded decision.
+For new Angular work governed by this accepted ADR, use Angular 22+ as the current baseline and adopt the **latest stable Angular major** after verification under [Meta ADR-0022](https://github.com/anarchitects/anarchitecture-meta/blob/main/adr/0022-core-framework-lifecycle-90-day-maintenance.md). Preserve supported Node/TypeScript/RxJS constraints. Existing Angular 21 releases, consumer promises, peer ranges and older examples remain subject to a documented prospective transition; previous-major maintenance covers security and critical fixes for **90 calendar days after this package's first verified, generally available successor-major release**, with explicitly approved dated exceptions. This policy is not an automatic dependency upgrade or runtime migration, and does not establish an EOM date without release evidence. Verify actual framework versions; avoid experimental APIs without separate approval.
 
 ### A02 — Standalone architecture and boundaries
 
